@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_clone_instagram/src/binding/init_bindings.dart';
 import 'package:get/get.dart';
 
 import 'src/app.dart';
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const App(),
+      initialBinding: InitBindings(),
     );
   }
 }
