@@ -11,10 +11,30 @@ class App extends GetView<BottomNavController> {
   Widget build(BuildContext context) {
     // WillPopScope : 안드로이드 뒤로가기 이벤트
     return WillPopScope(
+      onWillPop: controller.willPopAction,
       child: Obx(
         () => Scaffold(
           appBar: AppBar(),
-          body: Container(),
+          body: IndexedStack(
+            index: controller.pageIndex.value,
+            children: [
+              Container(
+                child: const Center(child: Text('home')),
+              ),
+              Container(
+                child: const Center(child: Text('search')),
+              ),
+              Container(
+                child: const Center(child: Text('upload')),
+              ),
+              Container(
+                child: const Center(child: Text('activity')),
+              ),
+              Container(
+                child: const Center(child: Text('mypage')),
+              ),
+            ],
+          ),
           bottomNavigationBar: BottomNavigationBar(
             type: BottomNavigationBarType.fixed,
             showSelectedLabels: false,
@@ -57,9 +77,6 @@ class App extends GetView<BottomNavController> {
           ),
         ),
       ),
-      onWillPop: () async {
-        return false;
-      },
     );
   }
 }
