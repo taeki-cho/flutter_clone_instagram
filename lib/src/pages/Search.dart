@@ -7,6 +7,8 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:quiver/iterables.dart';
 
+import 'search/searchFocus.dart';
+
 class Search extends StatefulWidget {
   const Search({super.key});
 
@@ -37,29 +39,40 @@ class _SearchState extends State<Search> {
     return Row(
       children: [
         Expanded(
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              vertical: 8,
-              horizontal: 10,
-            ),
-            margin: const EdgeInsets.only(
-              left: 10,
-            ),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              color: const Color(0xffefefef),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.search),
-                Text(
-                  '검색',
-                  style: TextStyle(
-                    fontSize: 15,
-                    color: Color(0xff838383),
-                  ),
+          child: GestureDetector(
+            onTap: () {
+              //Get.to(const Searchfocus());
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const Searchfocus(),
                 ),
-              ],
+              );
+            },
+            child: Container(
+              padding: const EdgeInsets.symmetric(
+                vertical: 8,
+                horizontal: 10,
+              ),
+              margin: const EdgeInsets.only(
+                left: 10,
+              ),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(6),
+                color: const Color(0xffefefef),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.search),
+                  Text(
+                    '검색',
+                    style: TextStyle(
+                      fontSize: 15,
+                      color: Color(0xff838383),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
@@ -90,7 +103,7 @@ class _SearchState extends State<Search> {
                   height: Get.width * 0.33 * groupBox[index][jindex],
                   child: CachedNetworkImage(
                     imageUrl:
-                        'https://image.utoimage.com/preview/cp872722/2022/12/202212008462_500.jpg',
+                        'https://www.urbanbrush.net/web/wp-content/uploads/edd/2022/11/urbanbrush-20221108214712319041.jpg',
                     fit: BoxFit.cover,
                   ),
                 ),
