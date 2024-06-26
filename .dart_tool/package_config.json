@@ -224,6 +224,12 @@
       "languageVersion": "2.19"
     },
     {
+      "name": "photo_manager",
+      "rootUri": "file:///Users/taeki/.pub-cache/hosted/pub.dev/photo_manager-3.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "2.13"
+    },
+    {
       "name": "platform",
       "rootUri": "file:///Users/taeki/.pub-cache/hosted/pub.dev/platform-3.1.5",
       "packageUri": "lib/",
@@ -362,7 +368,7 @@
       "languageVersion": "3.4"
     }
   ],
-  "generated": "2024-06-24T08:44:10.736735Z",
+  "generated": "2024-06-26T08:43:43.113515Z",
   "generator": "pub",
   "generatorVersion": "3.4.1",
   "flutterRoot": "file:///opt/homebrew/Caskroom/flutter/3.22.1/flutter",
