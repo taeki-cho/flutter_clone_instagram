@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_clone_instagram/src/components/image.data.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -11,6 +13,10 @@ class Upload extends StatefulWidget {
 
 class _UploadState extends State<Upload> {
   var albums = <AssetPathEntity>[];
+  var imageList = <AssetEntity>[];
+  AssetEntity? selectedImage;
+  var headerTitle = '';
+
   @override
   void initState() {
     super.initState();
@@ -41,9 +47,19 @@ class _UploadState extends State<Upload> {
     } else {}
   }
 
-  void _loadData() {
-    print(albums.first.name);
+  void _loadData() async {
+    headerTitle = albums.first.name;
+    await _pagingPhotos();
+    update();
   }
+
+  Future<void> _pagingPhotos() async {
+    var photos = await albums.first.getAssetListPaged(page: 0, size: 30);
+    imageList.addAll(photos);
+    selectedImage = imageList.first;
+  }
+
+  void update() => setState(() {});
 
   Widget _imagePreview() {
     var width = MediaQuery.of(context).size.width;
@@ -51,6 +67,16 @@ class _UploadState extends State<Upload> {
       width: width,
       height: width,
       color: Colors.grey,
+      child: selectedImage == null
+          ? Container()
+          : _photoWidget(
+              selectedImage!, MediaQuery.of(context).size.width.toInt(),
+              builder: (data) {
+              return Image.memory(
+                data,
+                fit: BoxFit.cover,
+              );
+            }),
     );
   }
 
@@ -63,21 +89,77 @@ class _UploadState extends State<Upload> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(5.0),
-            child: Row(
-              children: [
-                Text(
-                  '갤러리',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.black,
+          GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
                   ),
                 ),
-                Icon(
-                  Icons.arrow_drop_down,
+                // 전체화면을 사용하기 위한 설정
+                // isScrollControlled: true,
+                // constraints: BoxConstraints(
+                //   maxHeight: MediaQuery.of(context).size.height -
+                //       MediaQuery.of(context).padding.top,
+                // ),
+                builder: (_) => SizedBox(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            color: Colors.black54,
+                          ),
+                          margin: const EdgeInsets.only(
+                            top: 7,
+                          ),
+                          width: 40,
+                          height: 4,
+                        ),
+                      ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Column(
+                              children: List.generate(
+                            albums.length,
+                            (index) => Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 15,
+                                horizontal: 20,
+                              ),
+                              child: Text(
+                                albums[index].name,
+                              ),
+                            ),
+                          )),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: Row(
+                children: [
+                  Text(
+                    headerTitle,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      color: Colors.black,
+                    ),
+                  ),
+                  const Icon(
+                    Icons.arrow_drop_down,
+                  ),
+                ],
+              ),
             ),
           ),
           Row(
@@ -137,11 +219,42 @@ class _UploadState extends State<Upload> {
           mainAxisSpacing: 1,
           crossAxisSpacing: 1,
         ),
-        itemCount: 100,
+        itemCount: imageList.length,
         itemBuilder: (BuildContext context, int index) {
-          return Container(
-            color: Colors.red,
+          return _photoWidget(
+            imageList[index],
+            200,
+            builder: (data) {
+              return GestureDetector(
+                onTap: () {
+                  selectedImage = imageList[index];
+                  update();
+                },
+                child: Opacity(
+                  opacity: imageList[index] == selectedImage ? 0.3 : 1,
+                  child: Image.memory(
+                    data,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              );
+            },
           );
+        });
+  }
+
+  Widget _photoWidget(AssetEntity asset, int size,
+      {required Widget Function(Uint8List) builder}) {
+    return FutureBuilder(
+        future: asset.thumbnailDataWithSize(
+          ThumbnailSize(size, size),
+        ),
+        builder: (_, AsyncSnapshot<Uint8List?> snapshot) {
+          if (snapshot.hasData) {
+            return builder(snapshot.data!);
+          } else {
+            return Container();
+          }
         });
   }
 
