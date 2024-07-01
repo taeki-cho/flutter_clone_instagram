@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 
 import 'components/image.data.dart';
 import 'pages/Search.dart';
+import 'pages/active_history.dart';
+import 'pages/my_page.dart';
 
 class App extends GetView<BottomNavController> {
   const App({super.key});
@@ -27,15 +29,9 @@ class App extends GetView<BottomNavController> {
                       builder: (context) => const Search());
                 },
               ),
-              Container(
-                child: const Center(child: Text('upload')),
-              ),
-              Container(
-                child: const Center(child: Text('activity')),
-              ),
-              Container(
-                child: const Center(child: Text('mypage')),
-              ),
+              Container(),
+              const ActiveHistory(),
+              const MyPage(),
             ],
           ),
           bottomNavigationBar: BottomNavigationBar(
@@ -54,16 +50,16 @@ class App extends GetView<BottomNavController> {
               BottomNavigationBarItem(
                 icon: ImageData(IconsPath.searchOff),
                 activeIcon: ImageData(IconsPath.searchOn),
-                label: 'home',
+                label: 'search',
               ),
               BottomNavigationBarItem(
                 icon: ImageData(IconsPath.uploadIcon),
-                label: 'home',
+                label: 'upload',
               ),
               BottomNavigationBarItem(
                 icon: ImageData(IconsPath.activeOff),
                 activeIcon: ImageData(IconsPath.activeOn),
-                label: 'home',
+                label: 'activity',
               ),
               BottomNavigationBarItem(
                 icon: Container(
@@ -74,8 +70,8 @@ class App extends GetView<BottomNavController> {
                     color: Colors.grey,
                   ),
                 ),
-                label: 'home',
-              )
+                label: 'mypage',
+              ),
             ],
           ),
         ),
