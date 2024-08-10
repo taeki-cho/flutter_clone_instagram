@@ -2,82 +2,28 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_clone_instagram/src/components/image.data.dart';
+import 'package:flutter_clone_instagram/src/controller/upload_controller.dart';
 import 'package:get/get.dart';
 import 'package:photo_manager/photo_manager.dart';
 
-class Upload extends StatefulWidget {
+class Upload extends GetView<UploadController> {
   const Upload({super.key});
 
-  @override
-  State<Upload> createState() => _UploadState();
-}
-
-class _UploadState extends State<Upload> {
-  var albums = <AssetPathEntity>[];
-  var imageList = <AssetEntity>[];
-  AssetEntity? selectedImage;
-  var headerTitle = '';
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPhotos();
-  }
-
-  void _loadPhotos() async {
-    var result = await PhotoManager.requestPermissionExtend();
-    if (result.isAuth) {
-      albums = await PhotoManager.getAssetPathList(
-        type: RequestType.image,
-        filterOption: FilterOptionGroup(
-          imageOption: const FilterOption(
-            sizeConstraint: SizeConstraint(
-              minHeight: 100,
-              minWidth: 100,
-            ),
-          ),
-          orders: [
-            const OrderOption(
-              type: OrderOptionType.createDate,
-              asc: false,
-            ),
-          ],
-        ),
-      );
-      _loadData();
-    } else {}
-  }
-
-  void _loadData() async {
-    headerTitle = albums.first.name;
-    await _pagingPhotos();
-    update();
-  }
-
-  Future<void> _pagingPhotos() async {
-    var photos = await albums.first.getAssetListPaged(page: 0, size: 30);
-    imageList.addAll(photos);
-    selectedImage = imageList.first;
-  }
-
-  void update() => setState(() {});
-
   Widget _imagePreview() {
-    var width = MediaQuery.of(context).size.width;
-    return Container(
-      width: width,
-      height: width,
-      color: Colors.grey,
-      child: selectedImage == null
-          ? Container()
-          : _photoWidget(
-              selectedImage!, MediaQuery.of(context).size.width.toInt(),
-              builder: (data) {
-              return Image.memory(
-                data,
-                fit: BoxFit.cover,
-              );
-            }),
+    var width = Get.width;
+    return Obx(
+      () => Container(
+        width: width,
+        height: width,
+        color: Colors.grey,
+        child: _photoWidget(controller.selectedImage.value, width.toInt(),
+            builder: (data) {
+          return Image.memory(
+            data,
+            fit: BoxFit.cover,
+          );
+        }),
+      ),
     );
   }
 
@@ -93,7 +39,7 @@ class _UploadState extends State<Upload> {
           GestureDetector(
             onTap: () {
               showModalBottomSheet(
-                context: context,
+                context: Get.context!,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(20),
@@ -101,12 +47,14 @@ class _UploadState extends State<Upload> {
                   ),
                 ),
                 // 전체화면을 사용하기 위한 설정
-                // isScrollControlled: true,
-                // constraints: BoxConstraints(
-                //   maxHeight: MediaQuery.of(context).size.height -
-                //       MediaQuery.of(context).padding.top,
-                // ),
+                isScrollControlled:
+                    controller.albums.length > 10 ? true : false,
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(Get.context!).size.height -
+                      MediaQuery.of(Get.context!).padding.top,
+                ),
                 builder: (_) => SizedBox(
+                  height: controller.albums.length * 60,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
@@ -127,14 +75,21 @@ class _UploadState extends State<Upload> {
                         child: SingleChildScrollView(
                           child: Column(
                               children: List.generate(
-                            albums.length,
-                            (index) => Container(
-                              padding: const EdgeInsets.symmetric(
-                                vertical: 15,
-                                horizontal: 20,
-                              ),
-                              child: Text(
-                                albums[index].name,
+                            controller.albums.length,
+                            (index) => GestureDetector(
+                              onTap: () {
+                                controller
+                                    .changeAlbum(controller.albums[index]);
+                                Get.back();
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 15,
+                                  horizontal: 20,
+                                ),
+                                child: Text(
+                                  controller.albums[index].name,
+                                ),
                               ),
                             ),
                           )),
@@ -149,11 +104,13 @@ class _UploadState extends State<Upload> {
               padding: const EdgeInsets.all(5.0),
               child: Row(
                 children: [
-                  Text(
-                    headerTitle,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      color: Colors.black,
+                  Obx(
+                    () => Text(
+                      controller.headerTitle.value,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
                   const Icon(
@@ -211,37 +168,43 @@ class _UploadState extends State<Upload> {
   }
 
   Widget _imageSelectList() {
-    return GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 4,
-          childAspectRatio: 1,
-          mainAxisSpacing: 1,
-          crossAxisSpacing: 1,
-        ),
-        itemCount: imageList.length,
-        itemBuilder: (BuildContext context, int index) {
-          return _photoWidget(
-            imageList[index],
-            200,
-            builder: (data) {
-              return GestureDetector(
-                onTap: () {
-                  selectedImage = imageList[index];
-                  update();
-                },
-                child: Opacity(
-                  opacity: imageList[index] == selectedImage ? 0.3 : 1,
-                  child: Image.memory(
-                    data,
-                    fit: BoxFit.cover,
+    return Obx(
+      () => GridView.builder(
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 4,
+            childAspectRatio: 1,
+            mainAxisSpacing: 1,
+            crossAxisSpacing: 1,
+          ),
+          itemCount: controller.imageList.length,
+          itemBuilder: (BuildContext context, int index) {
+            return _photoWidget(
+              controller.imageList[index],
+              200,
+              builder: (data) {
+                return GestureDetector(
+                  onTap: () {
+                    controller.changeSelectedImage(controller.imageList[index]);
+                  },
+                  child: Obx(
+                    () => Opacity(
+                      opacity: controller.imageList[index] ==
+                              controller.selectedImage.value
+                          ? 0.3
+                          : 1,
+                      child: Image.memory(
+                        data,
+                        fit: BoxFit.cover,
+                      ),
+                    ),
                   ),
-                ),
-              );
-            },
-          );
-        });
+                );
+              },
+            );
+          }),
+    );
   }
 
   Widget _photoWidget(AssetEntity asset, int size,
@@ -284,7 +247,7 @@ class _UploadState extends State<Upload> {
         ),
         actions: [
           GestureDetector(
-            onTap: () {},
+            onTap: controller.gotoImageFilter,
             child: Padding(
               padding: const EdgeInsets.all(15.0),
               child: ImageData(

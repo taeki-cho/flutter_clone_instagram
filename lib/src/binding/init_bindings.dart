@@ -1,6 +1,7 @@
 import 'package:flutter_clone_instagram/src/controller/auth_controller.dart';
 import 'package:flutter_clone_instagram/src/controller/bottom_nav_controller.dart';
 import 'package:flutter_clone_instagram/src/controller/mypage_controller.dart';
+import 'package:flutter_clone_instagram/src/controller/upload_controller.dart';
 import 'package:get/get.dart';
 
 class InitBindings extends Bindings {
