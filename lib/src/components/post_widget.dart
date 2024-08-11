@@ -3,9 +3,12 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_clone_instagram/src/components/%08avatar_widget.dart';
 import 'package:flutter_clone_instagram/src/components/image.data.dart';
+import 'package:flutter_clone_instagram/src/models/post.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class PostWidget extends StatelessWidget {
-  const PostWidget({super.key});
+  final Post post;
+  const PostWidget({super.key, required this.post});
 
   Widget _header() {
     return Padding(
@@ -16,10 +19,9 @@ class PostWidget extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           AvatarWidget(
-            thumbPath:
-                'https://image.utoimage.com/preview/cp872722/2022/12/202212008462_500.jpg',
+            thumbPath: post.userInfo!.thumbnail!,
             type: AvatarType.TYPE3,
-            nickName: 'taekistyle',
+            nickName: post.userInfo!.nickname,
             size: 40,
           ),
           GestureDetector(
@@ -38,9 +40,7 @@ class PostWidget extends StatelessWidget {
   }
 
   Widget _image() {
-    return CachedNetworkImage(
-        imageUrl:
-            'https://gongu.copyright.or.kr/gongu/wrt/cmmn/wrtFileImageView.do?wrtSn=13262118&filePath=L2Rpc2sxL25ld2RhdGEvMjAyMC8yMS9DTFMxMDAwNi82MmZhMWExMy03ZjRmLTQ1NWMtYTZlNy02ZTk2YjhjMjBkYTk=&thumbAt=Y&thumbSe=b_tbumb&wrtTy=10006');
+    return CachedNetworkImage(imageUrl: post.thumbnail!);
   }
 
   Widget _infoCount() {
@@ -90,15 +90,15 @@ class PostWidget extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const Text(
-            '좋아요 150개',
-            style: TextStyle(
+          Text(
+            '좋아요 ${post.likeCount ?? 0}개',
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
             ),
           ),
           ExpandableText(
-            '컨텐츠 영역 입니다.\n컨텐츠 영역 입니다.\n컨텐츠 영역 입니다.\n컨텐츠 영역 입니다.',
-            prefixText: 'taekistyle',
+            post.description ?? '',
+            prefixText: post.userInfo!.nickname,
             onPrefixTap: () {
               print('taekistyle 페이지 이동');
             },
@@ -134,11 +134,11 @@ class PostWidget extends StatelessWidget {
   }
 
   Widget _dateAgo() {
-    return const Padding(
-      padding: EdgeInsets.symmetric(horizontal: 15),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 15),
       child: Text(
-        '1일전',
-        style: TextStyle(
+        timeago.format(post.createdAt!),
+        style: const TextStyle(
           color: Colors.grey,
           fontSize: 11,
         ),

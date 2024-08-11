@@ -19,10 +19,11 @@ class UploadDescription extends GetView<UploadController> {
               fit: BoxFit.cover,
             ),
           ),
-          const Expanded(
+          Expanded(
             child: TextField(
+              controller: controller.textEditingController,
               maxLines: null,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                   border: InputBorder.none,
                   focusedBorder: InputBorder.none,
                   enabledBorder: InputBorder.none,
@@ -135,7 +136,7 @@ class UploadDescription extends GetView<UploadController> {
         ),
         actions: [
           GestureDetector(
-            onTap: () {},
+            onTap: controller.uplaodPost,
             child: Padding(
               padding: const EdgeInsets.all(15),
               child: ImageData(
@@ -154,9 +155,7 @@ class UploadDescription extends GetView<UploadController> {
             top: 0,
             bottom: 0,
             child: GestureDetector(
-              onTap: () {
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
+              onTap: controller.unFocusKeyboard,
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
